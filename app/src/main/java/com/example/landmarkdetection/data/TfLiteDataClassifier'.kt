@@ -2,6 +2,7 @@ package com.example.landmarkdetection.data
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.compose.material3.Surface
 //import androidx.camera.core.ImageProcessor
 import com.example.landmarkdetection.domain.Classification
 import com.example.landmarkdetection.domain.LandmarkClassifier
@@ -11,6 +12,7 @@ import org.tensorflow.lite.task.core.BaseOptions
 import org.tensorflow.lite.task.vision.classifier.ImageClassifier
 import java.lang.IllegalStateException
 import org.tensorflow.lite.support.image.ImageProcessor
+import org.tensorflow.lite.task.core.vision.ImageProcessingOptions
 
 class TfLiteDataClassifier(
     private val context : Context,
@@ -51,5 +53,34 @@ class TfLiteDataClassifier(
         }
         val imageProcessor = ImageProcessor.Builder().build()
         val tensorImage = imageProcessor.process(TensorImage.fromBitmap(bitmap))
+
+        val imageProcessingOptions = ImageProcessingOptions.
+        builder().
+        setOrientation(getOrientationFromRotation(rotation)).
+        build()
+
+        val results  = classifier?.classify(tensorImage,imageProcessingOptions)
+
+        return results?.flatMap { classifications ->
+            classifications.categories.map { category->
+                Classification(
+                    name = category.displayName,
+                    score = category.score
+                )
+            }
+        }?.distinctBy { it.name }?: emptyList()
+
     }
+    private fun getOrientationFromRotation(rotation: Int):ImageProcessingOptions.Orientation{
+        return when (rotation){
+            android.view.Surface.ROTATION_0->ImageProcessingOptions.Orientation.RIGHT_TOP
+            android.view.Surface.ROTATION_90 ->ImageProcessingOptions.Orientation.TOP_LEFT
+            android.view.Surface.ROTATION_180->ImageProcessingOptions.Orientation.RIGHT_BOTTOM
+           else->ImageProcessingOptions.Orientation.BOTTOM_RIGHT
+
+            }
+        }
+    }
+
+
 }
