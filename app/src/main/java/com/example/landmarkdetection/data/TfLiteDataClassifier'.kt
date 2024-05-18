@@ -2,8 +2,6 @@ package com.example.landmarkdetection.data
 
 import android.content.Context
 import android.graphics.Bitmap
-import androidx.compose.material3.Surface
-//import androidx.camera.core.ImageProcessor
 import com.example.landmarkdetection.domain.Classification
 import com.example.landmarkdetection.domain.LandmarkClassifier
 import com.sun.istack.Builder
@@ -81,6 +79,3 @@ class TfLiteDataClassifier(
             }
         }
     }
-
-
-}
